@@ -24,9 +24,10 @@ import (
 	"github.com/gravitational/teleport"
 	"github.com/gravitational/teleport/api/client"
 	"github.com/gravitational/teleport/api/utils/sshutils"
-	"github.com/gravitational/teleport/lib/auth"
+	services "github.com/gravitational/teleport/lib/auth"
 	"github.com/gravitational/teleport/lib/auth/native"
-	"github.com/gravitational/teleport/lib/services"
+	"github.com/gravitational/teleport/lib/auth/resource"
+	"github.com/gravitational/teleport/lib/auth/server"
 	"github.com/gravitational/teleport/lib/tlsca"
 	"github.com/gravitational/teleport/lib/utils"
 
@@ -62,7 +63,7 @@ type Key struct {
 	ProxyHost string
 
 	// TrustedCA is a list of trusted certificate authorities
-	TrustedCA []auth.TrustedCerts
+	TrustedCA []server.TrustedCerts
 
 	// ClusterName is a cluster name this key is associated with
 	ClusterName string
@@ -110,9 +111,9 @@ func KeyFromIdentityFile(path string) (*Key, error) {
 	}
 
 	// Validate TLS CA certs (if present).
-	var trustedCA []auth.TrustedCerts
+	var trustedCA []server.TrustedCerts
 	if len(ident.CACerts.TLS) > 0 || len(ident.CACerts.SSH) > 0 {
-		trustedCA = []auth.TrustedCerts{{
+		trustedCA = []server.TrustedCerts{{
 			TLSCertificates:  ident.CACerts.TLS,
 			HostCertificates: ident.CACerts.SSH,
 		}}
@@ -195,7 +196,7 @@ func (k *Key) clientTLSConfig(cipherSuites []uint16, tlsCertRaw []byte) (*tls.Co
 	if err != nil {
 		return nil, trace.Wrap(err, "failed to parse TLS cert")
 	}
-	tlsConfig.ServerName = auth.EncodeClusterName(leaf.Issuer.CommonName)
+	tlsConfig.ServerName = services.EncodeClusterName(leaf.Issuer.CommonName)
 	return tlsConfig, nil
 }
 
@@ -233,7 +234,7 @@ func (k *Key) CertRoles() ([]string, error) {
 	var roles []string
 	rawRoles, ok := cert.Extensions[teleport.CertExtensionTeleportRoles]
 	if ok {
-		roles, err = services.UnmarshalCertRoles(rawRoles)
+		roles, err = resource.UnmarshalCertRoles(rawRoles)
 		if err != nil {
 			return nil, trace.Wrap(err)
 		}
