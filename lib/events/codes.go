@@ -338,6 +338,12 @@ const (
 	DatabaseSessionEndCode = "TDB01I"
 	// DatabaseSessionQueryCode is the database query event code.
 	DatabaseSessionQueryCode = "TDB02I"
+	// DatabaseSessionStatementPrepareCode is the prepared statement creation event code.
+	DatabaseSessionStatementPrepareCode = "TDB03I"
+	// DatabaseSessionStatementBindCode is the prepared statement bind event code.
+	DatabaseSessionStatementBindCode = "TDB04I"
+	// DatabaseSessionStatementExecuteCode is the prepared statement execution event code.
+	DatabaseSessionStatementExecuteCode = "TDB05I"
 
 	// SubsystemCode is the subsystem event code.
 	SubsystemCode = "T3001I"

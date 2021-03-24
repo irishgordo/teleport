@@ -22,6 +22,7 @@ import (
 	"github.com/gravitational/teleport/api/types/events"
 	"github.com/gravitational/teleport/lib/defaults"
 	libevents "github.com/gravitational/teleport/lib/events"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gravitational/trace"
 )
@@ -44,6 +45,8 @@ func (c *AuditConfig) Check() error {
 type Audit struct {
 	// cfg is the audit events emitter configuration.
 	cfg AuditConfig
+	// log is used for logging
+	log logrus.FieldLogger
 }
 
 // NewAudit returns a new instance of the audit events emitter.
@@ -53,38 +56,24 @@ func NewAudit(config AuditConfig) (*Audit, error) {
 	}
 	return &Audit{
 		cfg: config,
+		log: logrus.WithField(trace.Component, "db:audit"),
 	}, nil
 }
 
 // OnSessionStart emits an audit event when database session starts.
-func (a *Audit) OnSessionStart(ctx context.Context, session Session, sessionErr error) error {
+func (a *Audit) OnSessionStart(ctx context.Context, session Session, sessionErr error) {
 	event := &events.DatabaseSessionStart{
 		Metadata: events.Metadata{
 			Type:        libevents.DatabaseSessionStartEvent,
 			Code:        libevents.DatabaseSessionStartCode,
 			ClusterName: session.ClusterName,
 		},
-		ServerMetadata: events.ServerMetadata{
-			ServerID:        session.Server.GetHostID(),
-			ServerNamespace: defaults.Namespace,
-		},
-		UserMetadata: events.UserMetadata{
-			User:         session.Identity.Username,
-			Impersonator: session.Identity.Impersonator,
-		},
-		SessionMetadata: events.SessionMetadata{
-			SessionID: session.ID,
-			WithMFA:   session.Identity.MFAVerified,
-		},
+		ServerMetadata:   serverMetadata(session),
+		UserMetadata:     userMetadata(session),
+		SessionMetadata:  sessionMetadata(session),
+		DatabaseMetadata: databaseMetadata(session),
 		Status: events.Status{
 			Success: true,
-		},
-		DatabaseMetadata: events.DatabaseMetadata{
-			DatabaseService:  session.Server.GetName(),
-			DatabaseProtocol: session.Server.GetProtocol(),
-			DatabaseURI:      session.Server.GetURI(),
-			DatabaseName:     session.DatabaseName,
-			DatabaseUser:     session.DatabaseUser,
 		},
 	}
 	// If the database session wasn't started successfully, emit
@@ -97,70 +86,95 @@ func (a *Audit) OnSessionStart(ctx context.Context, session Session, sessionErr 
 			UserMessage: sessionErr.Error(),
 		}
 	}
-	err := a.cfg.StreamWriter.EmitAuditEvent(ctx, event)
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	return nil
+	a.emitAuditEvent(ctx, event)
 }
 
 // OnSessionEnd emits an audit event when database session ends.
-func (a *Audit) OnSessionEnd(ctx context.Context, session Session) error {
-	err := a.cfg.StreamWriter.EmitAuditEvent(ctx, &events.DatabaseSessionEnd{
+func (a *Audit) OnSessionEnd(ctx context.Context, session Session) {
+	a.emitAuditEvent(ctx, &events.DatabaseSessionEnd{
 		Metadata: events.Metadata{
 			Type:        libevents.DatabaseSessionEndEvent,
 			Code:        libevents.DatabaseSessionEndCode,
 			ClusterName: session.ClusterName,
 		},
-		UserMetadata: events.UserMetadata{
-			User:         session.Identity.Username,
-			Impersonator: session.Identity.Impersonator,
-		},
-		SessionMetadata: events.SessionMetadata{
-			SessionID: session.ID,
-			WithMFA:   session.Identity.MFAVerified,
-		},
-		DatabaseMetadata: events.DatabaseMetadata{
-			DatabaseService:  session.Server.GetName(),
-			DatabaseProtocol: session.Server.GetProtocol(),
-			DatabaseURI:      session.Server.GetURI(),
-			DatabaseName:     session.DatabaseName,
-			DatabaseUser:     session.DatabaseUser,
-		},
+		UserMetadata:     userMetadata(session),
+		SessionMetadata:  sessionMetadata(session),
+		DatabaseMetadata: databaseMetadata(session),
 	})
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	return nil
 }
 
 // OnQuery emits an audit event when a database query is executed.
-func (a *Audit) OnQuery(ctx context.Context, session Session, query string) error {
-	err := a.cfg.StreamWriter.EmitAuditEvent(ctx, &events.DatabaseSessionQuery{
+func (a *Audit) OnQuery(ctx context.Context, session Session, query string) {
+	a.emitAuditEvent(ctx, &events.DatabaseSessionQuery{
 		Metadata: events.Metadata{
 			Type:        libevents.DatabaseSessionQueryEvent,
 			Code:        libevents.DatabaseSessionQueryCode,
 			ClusterName: session.ClusterName,
 		},
-		UserMetadata: events.UserMetadata{
-			User:         session.Identity.Username,
-			Impersonator: session.Identity.Impersonator,
-		},
-		SessionMetadata: events.SessionMetadata{
-			SessionID: session.ID,
-			WithMFA:   session.Identity.MFAVerified,
-		},
-		DatabaseMetadata: events.DatabaseMetadata{
-			DatabaseService:  session.Server.GetName(),
-			DatabaseProtocol: session.Server.GetProtocol(),
-			DatabaseURI:      session.Server.GetURI(),
-			DatabaseName:     session.DatabaseName,
-			DatabaseUser:     session.DatabaseUser,
-		},
-		DatabaseQuery: query,
+		UserMetadata:     userMetadata(session),
+		SessionMetadata:  sessionMetadata(session),
+		DatabaseMetadata: databaseMetadata(session),
+		DatabaseQuery:    query,
 	})
-	if err != nil {
-		return trace.Wrap(err)
+}
+
+type PreparedStatement struct {
+	Query         string
+	StatementName string
+	PortalName    string
+}
+
+// OnPreparedStatement emits an audit event when a prepared statement action
+// happens.
+func (a *Audit) OnPreparedStatement(ctx context.Context, session Session, event, code string, statement PreparedStatement) {
+	a.emitAuditEvent(ctx, &events.DatabaseSessionStatement{
+		Metadata: events.Metadata{
+			Type:        event,
+			Code:        code,
+			ClusterName: session.ClusterName,
+		},
+		UserMetadata:      userMetadata(session),
+		SessionMetadata:   sessionMetadata(session),
+		DatabaseMetadata:  databaseMetadata(session),
+		DatabaseQuery:     statement.Query,
+		DatabaseStatement: statement.StatementName,
+		DatabasePortal:    statement.PortalName,
+	})
+}
+
+func (a *Audit) emitAuditEvent(ctx context.Context, event events.AuditEvent) {
+	if err := a.cfg.StreamWriter.EmitAuditEvent(ctx, event); err != nil {
+		a.log.WithError(err).Errorf("Failed to emit audit event: %v.", event)
 	}
-	return nil
+}
+
+func serverMetadata(session Session) events.ServerMetadata {
+	return events.ServerMetadata{
+		ServerID:        session.Server.GetHostID(),
+		ServerNamespace: defaults.Namespace,
+	}
+}
+
+func userMetadata(session Session) events.UserMetadata {
+	return events.UserMetadata{
+		User:         session.Identity.Username,
+		Impersonator: session.Identity.Impersonator,
+	}
+}
+
+func sessionMetadata(session Session) events.SessionMetadata {
+	return events.SessionMetadata{
+		SessionID: session.ID,
+		WithMFA:   session.Identity.MFAVerified,
+	}
+}
+
+func databaseMetadata(session Session) events.DatabaseMetadata {
+	return events.DatabaseMetadata{
+		DatabaseService:  session.Server.GetName(),
+		DatabaseProtocol: session.Server.GetProtocol(),
+		DatabaseURI:      session.Server.GetURI(),
+		DatabaseName:     session.DatabaseName,
+		DatabaseUser:     session.DatabaseUser,
+	}
 }

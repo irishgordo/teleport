@@ -355,12 +355,28 @@ const (
 	// AppSessionRequestEvent is an HTTP request and response.
 	AppSessionRequestEvent = "app.session.request"
 
-	// DatabaseSessionStartEvent indicates the start of a database session.
+	// DatabaseSessionStartEvent is emitted when a database client attempts
+	// to connect to a database.
 	DatabaseSessionStartEvent = "db.session.start"
-	// DatabaseSessionEndEvent indicates the end of a database session.
+	// DatabaseSessionEndEvent is emitted when a database client disconnects
+	// from a database.
 	DatabaseSessionEndEvent = "db.session.end"
-	// DatabaseSessionQueryEvent indicates a database query execution.
+	// DatabaseSessionQueryEvent is emitted when a database client executes
+	// a query.
 	DatabaseSessionQueryEvent = "db.session.query"
+	// DatabaseSessionStatementPrepareEvent is emitted when a database client
+	// creates a prepared statement.
+	DatabaseSessionStatementPrepareEvent = "db.session.statement.prepare"
+	// DatabaseSessionStatementBindEvent is emitted when a database client
+	// readies prepared statement for execution with parameters.
+	//
+	// This event is database engine specific. E.g. Postgres binds prepared
+	// statement in a separate protocol message (which this event is for),
+	// while MySQL sends parameters as a part of execute message (below).
+	DatabaseSessionStatementBindEvent = "db.session.statement.bind"
+	// DatabaseSessionStatementExecuteEvent is emitted when a database client
+	// executes a prepared statement.
+	DatabaseSessionStatementExecuteEvent = "db.session.statement.execute"
 
 	// SessionRejectedReasonMaxConnections indicates that a session.rejected event
 	// corresponds to enforcement of the max_connections control.

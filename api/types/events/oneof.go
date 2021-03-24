@@ -201,6 +201,10 @@ func ToOneOf(in AuditEvent) (*OneOf, error) {
 		out.Event = &OneOf_DatabaseSessionQuery{
 			DatabaseSessionQuery: e,
 		}
+	case *DatabaseSessionStatement:
+		out.Event = &OneOf_DatabaseSessionStatement{
+			DatabaseSessionStatement: e,
+		}
 	case *SessionUpload:
 		out.Event = &OneOf_SessionUpload{
 			SessionUpload: e,
@@ -304,6 +308,8 @@ func FromOneOf(in OneOf) (AuditEvent, error) {
 	} else if e := in.GetDatabaseSessionEnd(); e != nil {
 		return e, nil
 	} else if e := in.GetDatabaseSessionQuery(); e != nil {
+		return e, nil
+	} else if e := in.GetDatabaseSessionStatement(); e != nil {
 		return e, nil
 	} else if e := in.GetSessionUpload(); e != nil {
 		return e, nil

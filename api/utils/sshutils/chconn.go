@@ -22,6 +22,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gravitational/teleport"
 	"github.com/gravitational/trace"
 	"golang.org/x/crypto/ssh"
 )
@@ -111,7 +112,11 @@ func (c *ChConn) RemoteAddr() net.Addr {
 
 // Read reads from the channel.
 func (c *ChConn) Read(data []byte) (int, error) {
-	return c.reader.Read(data)
+	n, err := c.reader.Read(data)
+	if err != nil && err == io.ErrClosedPipe {
+		return n, trace.ConnectionProblem(err, teleport.UseOfClosedNetworkConnection)
+	}
+	return n, trace.Wrap(err)
 }
 
 // SetDeadline sets a connection deadline.

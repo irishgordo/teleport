@@ -23,6 +23,7 @@ import (
 	"net"
 
 	"github.com/gravitational/teleport/api/types"
+	"github.com/gravitational/teleport/lib/events"
 	"github.com/gravitational/teleport/lib/services"
 	"github.com/gravitational/teleport/lib/srv/db/common"
 
@@ -111,16 +112,8 @@ func (e *Engine) HandleConnection(ctx context.Context, sessionCtx *common.Sessio
 	}
 	// At this point Postgres client should be ready to start sending
 	// messages: this is where psql prompt appears on the other side.
-	err = e.Audit.OnSessionStart(e.Context, *sessionCtx, nil)
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	defer func() {
-		err := e.Audit.OnSessionEnd(e.Context, *sessionCtx)
-		if err != nil {
-			e.Log.WithError(err).Error("Failed to emit audit event.")
-		}
-	}()
+	e.Audit.OnSessionStart(e.Context, *sessionCtx, nil)
+	defer e.Audit.OnSessionEnd(e.Context, *sessionCtx)
 	// Reconstruct pgconn.PgConn from hijacked connection for easier access
 	// to its utility methods (such as Close).
 	serverConn, err := pgconn.Construct(hijackedConn)
@@ -192,9 +185,7 @@ func (e *Engine) checkAccess(sessionCtx *common.Session) error {
 		&services.DatabaseUserMatcher{User: sessionCtx.DatabaseUser},
 		&services.DatabaseNameMatcher{Name: sessionCtx.DatabaseName})
 	if err != nil {
-		if err := e.Audit.OnSessionStart(e.Context, *sessionCtx, err); err != nil {
-			e.Log.WithError(err).Error("Failed to emit audit event.")
-		}
+		e.Audit.OnSessionStart(e.Context, *sessionCtx, err)
 		return trace.Wrap(err)
 	}
 	return nil
@@ -274,10 +265,30 @@ func (e *Engine) receiveFromClient(client *pgproto3.Backend, server *pgproto3.Fr
 		log.Debugf("Received client message: %#v.", message)
 		switch msg := message.(type) {
 		case *pgproto3.Query:
-			err := e.Audit.OnQuery(e.Context, *sessionCtx, msg.String)
-			if err != nil {
-				log.WithError(err).Error("Failed to emit audit event.")
-			}
+			e.Audit.OnQuery(e.Context, *sessionCtx, msg.String)
+		case *pgproto3.Parse:
+			e.Audit.OnPreparedStatement(e.Context, *sessionCtx,
+				events.DatabaseSessionStatementPrepareEvent,
+				events.DatabaseSessionStatementPrepareCode,
+				common.PreparedStatement{
+					Query:         msg.Query,
+					StatementName: msg.Name,
+				})
+		case *pgproto3.Bind:
+			e.Audit.OnPreparedStatement(e.Context, *sessionCtx,
+				events.DatabaseSessionStatementBindEvent,
+				events.DatabaseSessionStatementBindCode,
+				common.PreparedStatement{
+					StatementName: msg.PreparedStatement,
+					PortalName:    msg.DestinationPortal,
+				})
+		case *pgproto3.Execute:
+			e.Audit.OnPreparedStatement(e.Context, *sessionCtx,
+				events.DatabaseSessionStatementExecuteEvent,
+				events.DatabaseSessionStatementExecuteCode,
+				common.PreparedStatement{
+					PortalName: msg.Portal,
+				})
 		case *pgproto3.Terminate:
 			clientErrCh <- nil
 			return

@@ -1173,6 +1173,33 @@ message DatabaseSessionQuery {
     string DatabaseQuery = 5 [ (gogoproto.jsontag) = "db_query" ];
 }
 
+// DatabaseSessionStatement is emitted for database prepared statements.
+message DatabaseSessionStatement {
+    // Metadata is a common event metadata.
+    Metadata Metadata = 1
+        [ (gogoproto.nullable) = false, (gogoproto.embed) = true, (gogoproto.jsontag) = "" ];
+    // User is a common user event metadata.
+    UserMetadata User = 2
+        [ (gogoproto.nullable) = false, (gogoproto.embed) = true, (gogoproto.jsontag) = "" ];
+    // SessionMetadata is a common event session metadata.
+    SessionMetadata Session = 3
+        [ (gogoproto.nullable) = false, (gogoproto.embed) = true, (gogoproto.jsontag) = "" ];
+    // Database contains database related metadata.
+    DatabaseMetadata Database = 4
+        [ (gogoproto.nullable) = false, (gogoproto.embed) = true, (gogoproto.jsontag) = "" ];
+    // DatabaseQuery is the query text prepared statement will be created from.
+    string DatabaseQuery = 5 [ (gogoproto.jsontag) = "db_query,omitempty" ];
+    // DatabaseStatement is the prepared statement name.
+    //
+    // Can be empty in case of Postgres unnamed statement.
+    string DatabaseStatement = 6 [ (gogoproto.jsontag) = "db_statement,omitempty" ];
+    // DatabasePortal is the name of the destination portal that binds prepared
+    // statement with the parameters.
+    //
+    // Only used by Postgres. Can be empty in case of unnamed portal.
+    string DatabasePortal = 7 [ (gogoproto.jsontag) = "db_portal,omitempty" ];
+}
+
 // DatabaseSessionEnd is emitted when a user ends the database session.
 message DatabaseSessionEnd {
     // Metadata is a common event metadata.
@@ -1307,6 +1334,7 @@ message OneOf {
         events.BillingInformationUpdate BillingInformationUpdate = 46;
         events.BillingCardCreate BillingCardCreate = 47;
         events.BillingCardDelete BillingCardDelete = 48;
+        events.DatabaseSessionStatement DatabaseSessionStatement = 49;
     }
 }
 
