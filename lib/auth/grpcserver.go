@@ -2080,6 +2080,141 @@ func (g *GRPCServer) DeleteGithubConnector(ctx context.Context, req *types.Resou
 	return &empty.Empty{}, nil
 }
 
+// GetTrustedCluster retrieves a Trusted Cluster by name.
+func (g *GRPCServer) GetTrustedCluster(ctx context.Context, req *types.ResourceRequest) (*types.TrustedClusterV2, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	tc, err := auth.ServerWithRoles.GetTrustedCluster(ctx, req.Name)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	trustedClusterV2, ok := tc.(*types.TrustedClusterV2)
+	if !ok {
+		return nil, trail.ToGRPC(trace.Errorf("encountered unexpected Trusted Cluster type %T", tc))
+	}
+	return trustedClusterV2, nil
+}
+
+// GetTrustedClusters retrieves all Trusted Clusters.
+func (g *GRPCServer) GetTrustedClusters(ctx context.Context, _ *empty.Empty) (*types.TrustedClusterV2List, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	trustedClusters, err := auth.ServerWithRoles.GetTrustedClusters(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	trustedClustersV2 := make([]*types.TrustedClusterV2, len(trustedClusters))
+	for i, tc := range trustedClusters {
+		var ok bool
+		if trustedClustersV2[i], ok = tc.(*types.TrustedClusterV2); !ok {
+			return nil, trail.ToGRPC(trace.BadParameter("unexpected type %T", tc))
+		}
+	}
+	return &types.TrustedClusterV2List{
+		TrustedClusters: trustedClustersV2,
+	}, nil
+}
+
+// UpsertTrustedCluster upserts a Trusted Cluster.
+func (g *GRPCServer) UpsertTrustedCluster(ctx context.Context, cluster *types.TrustedClusterV2) (*types.TrustedClusterV2, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	if err = services.ValidateTrustedCluster(cluster); err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	trustedCluster, err := auth.ServerWithRoles.UpsertTrustedCluster(ctx, cluster)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+
+	trustedClusterV2, ok := trustedCluster.(*types.TrustedClusterV2)
+	if !ok {
+		return nil, trail.ToGRPC(trace.Errorf("encountered unexpected Trusted Cluster type"))
+	}
+	return trustedClusterV2, nil
+}
+
+// DeleteTrustedCluster deletes a Trusted Cluster by name.
+func (g *GRPCServer) DeleteTrustedCluster(ctx context.Context, req *types.ResourceRequest) (*empty.Empty, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	if err := auth.ServerWithRoles.DeleteTrustedCluster(ctx, req.Name); err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	return &empty.Empty{}, nil
+}
+
+// GetToken retrieves a token by name.
+func (g *GRPCServer) GetToken(ctx context.Context, req *types.ResourceRequest) (*types.ProvisionTokenV2, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	token, err := auth.ServerWithRoles.GetToken(ctx, req.Name)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	provisionTokenV2, ok := token.(*types.ProvisionTokenV2)
+	if !ok {
+		return nil, trail.ToGRPC(trace.Errorf("encountered unexpected token type: %T", token))
+	}
+	return provisionTokenV2, nil
+}
+
+// GetTokens retrieves all tokens.
+func (g *GRPCServer) GetTokens(ctx context.Context, _ *empty.Empty) (*types.ProvisionTokenV2List, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	tokens, err := auth.ServerWithRoles.GetTokens(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	provisionTokensV2 := make([]*types.ProvisionTokenV2, len(tokens))
+	for i, t := range tokens {
+		var ok bool
+		if provisionTokensV2[i], ok = t.(*types.ProvisionTokenV2); !ok {
+			return nil, trail.ToGRPC(trace.Errorf("encountered unexpected token type: %T", t))
+		}
+	}
+	return &types.ProvisionTokenV2List{
+		ProvisionTokens: provisionTokensV2,
+	}, nil
+}
+
+// UpsertToken upserts a token.
+func (g *GRPCServer) UpsertToken(ctx context.Context, token *types.ProvisionTokenV2) (*empty.Empty, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	if err = auth.ServerWithRoles.UpsertToken(ctx, token); err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	return &empty.Empty{}, nil
+}
+
+// DeleteToken deletes a token by name.
+func (g *GRPCServer) DeleteToken(ctx context.Context, req *types.ResourceRequest) (*empty.Empty, error) {
+	auth, err := g.authenticate(ctx)
+	if err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	if err := auth.ServerWithRoles.DeleteToken(ctx, req.Name); err != nil {
+		return nil, trail.ToGRPC(err)
+	}
+	return &empty.Empty{}, nil
+}
+
 type grpcContext struct {
 	*Context
 	*ServerWithRoles
