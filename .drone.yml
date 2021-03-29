@@ -78,6 +78,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build buildbox
   image: docker
   commands:
@@ -259,6 +262,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Run docs tests
   image: docker:git
   commands:
@@ -389,6 +395,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -487,6 +496,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -587,6 +599,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -687,6 +702,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -882,6 +900,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -980,6 +1001,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1080,6 +1104,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1407,6 +1434,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1507,6 +1537,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1607,6 +1640,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1710,6 +1746,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -1812,6 +1851,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -1941,6 +1983,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -2067,6 +2112,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -2182,6 +2230,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -2294,6 +2345,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -2394,6 +2448,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -2523,6 +2580,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3024,6 +3084,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -3124,6 +3187,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -3224,6 +3290,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -3324,6 +3393,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3439,6 +3511,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3551,6 +3626,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3666,6 +3744,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3795,6 +3876,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -3921,6 +4005,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Download artifacts from S3
   image: amazon/aws-cli
   commands:
@@ -4050,6 +4137,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: Build artifacts
   image: docker
   commands:
@@ -4455,6 +4545,9 @@ steps:
   image: docker
   commands:
   - timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'
+  volumes:
+  - name: dockersock
+    path: /var/run
 - name: buildbox
   image: docker
   commands:
@@ -4863,6 +4956,6 @@ volumes:
       name: drone-s3-debrepo-pvc
 ---
 kind: signature
-hmac: e4592a0b918d38e01e5ef888c11d8d623a817ced324c3175cd62d99579a44441
+hmac: acf2575eaa25beb7c841f839e37a00ddfc06ab6df86f84d2c508c9aa29dfc1d9
 
 ...
