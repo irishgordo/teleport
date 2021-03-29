@@ -14,11 +14,10 @@ import (
 func TestWrite(t *testing.T) {
 	outputDir := t.TempDir()
 	key := &client.Key{
-		Cert:        []byte("cert"),
-		TLSCert:     []byte("tls-cert"),
-		Priv:        []byte("priv"),
-		Pub:         []byte("pub"),
-		ClusterName: "foo",
+		Cert:    []byte("cert"),
+		TLSCert: []byte("tls-cert"),
+		Priv:    []byte("priv"),
+		Pub:     []byte("pub"),
 		TrustedCA: []auth.TrustedCerts{{
 			TLSCertificates: [][]byte{[]byte("ca-cert")},
 		}},
@@ -63,11 +62,10 @@ func TestWrite(t *testing.T) {
 
 func TestKubeconfigOverwrite(t *testing.T) {
 	key := &client.Key{
-		Cert:        []byte("cert"),
-		TLSCert:     []byte("tls-cert"),
-		Priv:        []byte("priv"),
-		Pub:         []byte("pub"),
-		ClusterName: "foo",
+		Cert:    []byte("cert"),
+		TLSCert: []byte("tls-cert"),
+		Priv:    []byte("priv"),
+		Pub:     []byte("pub"),
 		TrustedCA: []auth.TrustedCerts{{
 			TLSCertificates: [][]byte{[]byte("ca-cert")},
 		}},

@@ -138,8 +138,7 @@ func FullProfilePath(dir string) string {
 	}
 	// get user home dir:
 	home := os.TempDir()
-	u, err := user.Current()
-	if err == nil {
+	if u, err := user.Current(); err == nil && u.HomeDir != "" {
 		home = u.HomeDir
 	}
 	return filepath.Join(home, ProfileDir)
