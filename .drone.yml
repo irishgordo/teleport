@@ -4506,7 +4506,7 @@ volumes:
 ################################################
 # Generated using dronegen, do not edit by hand!
 # Use 'make dronegen' to update.
-# Generated at dronegen/buildbox.go:53
+# Generated at dronegen/buildbox.go:50
 ################################################
 
 kind: pipeline
@@ -4534,12 +4534,9 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH:-master} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
-  environment:
-    GITHUB_PRIVATE_KEY:
-      from_secret: GITHUB_PRIVATE_KEY
 - name: Wait for docker
   image: docker
   commands:
@@ -4961,6 +4958,6 @@ volumes:
       name: drone-s3-debrepo-pvc
 ---
 kind: signature
-hmac: c4d12e3dfb3abbfc49688f3b00b836f64529c4ec711db71c70c27fee63f866ee
+hmac: 76eaa227639b8b81a7a0653389c884b660e9ba5009b576d9328a149552e14a1c
 
 ...
