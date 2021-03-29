@@ -103,3 +103,9 @@ func releaseMakefileTarget(b buildType) string {
 	}
 	return makefileTarget
 }
+
+// waitForDockerCommand returns a timeout command which checks that the Docker socket is active
+// before finishing
+func waitForDockerCommand() string {
+	return `timeout 30s /bin/sh -c 'while [ ! -S /var/run/docker.sock ]; do sleep 1; done'`
+}
