@@ -39,7 +39,6 @@ import (
 )
 
 const (
-	defaultKeyDir      = ProfileDir
 	fileExtTLSCert     = "-x509.pem"
 	fileExtSSHCert     = "-cert.pub"
 	fileExtPub         = ".pub"
