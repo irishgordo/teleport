@@ -4325,7 +4325,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4389,7 +4389,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4453,7 +4453,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4517,7 +4517,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4581,7 +4581,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4645,7 +4645,7 @@ steps:
 - name: Check out code
   image: docker:git
   commands:
-  - git clone --shallow-since=$$(date) https://github.com/gravitational/${DRONE_REPO_NAME}.git
+  - git clone --depth 1 --single-branch --branch ${DRONE_SOURCE_BRANCH} https://github.com/gravitational/${DRONE_REPO_NAME}.git
     .
   - git checkout ${DRONE_COMMIT}
   environment:
@@ -4978,6 +4978,6 @@ volumes:
       name: drone-s3-debrepo-pvc
 ---
 kind: signature
-hmac: 208f10bdd9d89a67718a1c3e9c6432bd8f786057dbad40c2a8927dd1fd8498d0
+hmac: 260bff95e65582ee76faf404b06bab3f5a98b0bf0afa00cd2d94f4cab1e277b2
 
 ...
