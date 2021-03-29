@@ -4526,7 +4526,6 @@ trigger:
   branch:
     include:
     - master
-    - gus/dronegen-buildboxes
 workspace:
   path: /go/src/github.com/gravitational/teleport
 clone:
@@ -4555,6 +4554,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox
+  - docker push quay.io/gravitational/teleport-buildbox:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4571,6 +4571,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox-fips
+  - docker push quay.io/gravitational/teleport-buildbox-fips:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4587,6 +4588,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox-centos6
+  - docker push quay.io/gravitational/teleport-buildbox-centos6:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4603,6 +4605,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox-centos6-fips
+  - docker push quay.io/gravitational/teleport-buildbox-centos6-fips:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4619,6 +4622,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox-arm
+  - docker push quay.io/gravitational/teleport-buildbox-arm:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4635,6 +4639,7 @@ steps:
   - chown -R $UID:$GID /go
   - docker login -u="$$QUAYIO_DOCKER_USERNAME" -p="$$QUAYIO_DOCKER_PASSWORD" quay.io
   - make -C build.assets buildbox-arm-fips
+  - docker push quay.io/gravitational/teleport-buildbox-arm-fips:$RUNTIME
   environment:
     QUAYIO_DOCKER_PASSWORD:
       from_secret: QUAYIO_DOCKER_PASSWORD
@@ -4956,6 +4961,6 @@ volumes:
       name: drone-s3-debrepo-pvc
 ---
 kind: signature
-hmac: acf2575eaa25beb7c841f839e37a00ddfc06ab6df86f84d2c508c9aa29dfc1d9
+hmac: c4d12e3dfb3abbfc49688f3b00b836f64529c4ec711db71c70c27fee63f866ee
 
 ...
